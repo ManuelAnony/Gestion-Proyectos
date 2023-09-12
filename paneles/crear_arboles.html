@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crear Árbol de Problemas y Objetivos</title>
+    <style>
+        .tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 5px;
+        }
+
+        .add-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .remove-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>Crear Árbol de Problemas</h2>
+    <div class="tree" id="problemas">
+        <div class="row">
+            <div class="box">Efecto</div>
+            <div class="box">Efecto</div>
+            <div class="box">Efecto</div>
+        </div>
+        <div class="row">
+            <div class="box">Problema</div>
+        </div>
+        <div class="row">
+            <div class="box">Causa</div>
+            <div class="box">Causa</div>
+            <div class="box">Causa</div>
+        </div>
+        <button class="add-button">Agregar Efecto</button>
+        <button class="remove-button">Eliminar</button>
+        <button class="add-button">Agregar Causa</button>
+    </div>
+
+    <h2>Crear Árbol de Objetivos</h2>
+    <div class="tree" id="objetivos">
+        <div class="row">
+            <div class="box">Objetivo Específico</div>
+            <div class="box">Objetivo Específico</div>
+            <div class="box">Objetivo Específico</div>
+        </div>
+        <div class="row">
+            <div class="box">Objetivo General</div>
+        </div>
+        <div class="row">
+            <div class="box">Medio</div>
+            <div class="box">Medio</div>
+            <div class="box">Medio</div>
+        </div>
+        <button class="add-button">Agregar Objetivo Específico</button>
+        <button class="remove-button">Eliminar</button>
+        <button class="add-button">Agregar Medio</button>
+    </div>
+
+    <button id="submit-button">Finalizar y Guardar</button>
+
+    <script>
+        const agregarElemento = (treeId, tipo) => {
+            const tree = document.getElementById(treeId);
+            const newRow = document.createElement("div");
+            newRow.classList.add("row");
+            newRow.innerHTML = `<div class="box">${tipo}</div>`;
+            tree.insertBefore(newRow, tree.lastChild);
+        };
+
+        const eliminarElemento = (treeId) => {
+            const tree = document.getElementById(treeId);
+            const rows = tree.querySelectorAll(".row");
+            if (rows.length > 1) {
+                tree.removeChild(rows[rows.length - 2]);
+            }
+        };
+
+        document.querySelector("#problemas .add-button").addEventListener("click", () => {
+            agregarElemento("problemas", "Efecto");
+        });
+
+        document.querySelector("#problemas .remove-button").addEventListener("click", () => {
+            eliminarElemento("problemas");
+        });
+
+        document.querySelector("#objetivos .add-button").addEventListener("click", () => {
+            agregarElemento("objetivos", "Objetivo Específico");
+        });
+
+        document.querySelector("#objetivos .remove-button").addEventListener("click", () => {
+            eliminarElemento("objetivos");
+        });
+
+        document.querySelector("#submit-button").addEventListener("click", () => {
+            // Obtener datos ingresados por el usuario
+            const datosUsuario = {
+                problemas: [],
+                objetivos: []
+            };
+
+            // Obtener datos del árbol de problemas
+            const problemasElements = document.querySelectorAll("#problemas .box");
+            problemasElements.forEach(element => {
+                datosUsuario.problemas.push(element.textContent);
+            });
+
+            // Obtener datos del árbol de objetivos
+            const objetivosElements = document.querySelectorAll("#objetivos .box");
+            objetivosElements.forEach(element => {
+                datosUsuario.objetivos.push(element.textContent);
+            });
+
+            // Enviar datos al servidor mediante una solicitud POST a un archivo PHP
+            fetch("guardar_datos.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(datosUsuario)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Manejar la respuesta del servidor, si es necesario
+                console.log(data);
+                // Redirigir al usuario a panel_usuario.html
+                window.location.href = "panel_usuario.html";
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        });
+    </script>
+</body>
+</html>
